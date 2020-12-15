@@ -1,0 +1,5 @@
+node_modules
+.DS_Store
+Scraper/jobs.csv
+Scraper/jobs.db
+Scraper/__pycache*

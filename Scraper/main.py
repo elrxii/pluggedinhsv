@@ -36,7 +36,7 @@ with open('jobs.csv', 'w') as csv_file:  # write to csv
         ] 
 )
 
-    for link in urlArray:
+    for index, link in enumerate(urlArray):
         for i in range(0,40,10):
             url = link.format(i)
             response = requests.get(url)  # must read 200 which means successfully connected to website
@@ -66,8 +66,7 @@ with open('jobs.csv', 'w') as csv_file:  # write to csv
                 if (e.has_attr("data-empn")):
                     empn = e["data-empn"]
                     jk = e["data-jk"]
-                    if (i < len(clickLinkArray)):
-                        clickableLink = clickLinkArray[i].format(empn, jk) # these contain the ids for the to go straight to job link
+                    clickableLink = clickLinkArray[index].format(empn, jk) # these contain the ids for the to go straight to job link
                 else:
                     clickableLink = None;
                 csv_writer.writerow([companyName, jobName,postDate, jobLocation, clickableLink])

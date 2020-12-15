@@ -2,7 +2,7 @@
 # on 12/13/2020
 
 # This is a job-scraping program where I scrape the latest monitor prices on newegg.com.
-#TODO: Why are only some clickable links showing for hsv?  Remember, I only have clickable links working for hsv right now
+#TODO: Database is created and linked, data is scraping properly and being saved to .csv and db.  Now work on frontend
 
 
 import requests
@@ -62,13 +62,15 @@ with open('jobs.csv', 'w') as csv_file:  # write to csv
                 postDate = c.find("span").get_text()
                 jobLocation = d["data-rc-loc"]
 
-
                 if (e.has_attr("data-empn")):
                     empn = e["data-empn"]
                     jk = e["data-jk"]
-                    clickableLink = clickLinkArray[index].format(empn, jk) # these contain the ids for the to go straight to job link
+                elif (e.has_attr("id")):
+                    empn = e["id"]
+                    jk = e["data-jk"]
                 else:
                     clickableLink = None;
+                clickableLink = clickLinkArray[index].format(empn, jk) # these contain the ids for the to go straight to job link
                 csv_writer.writerow([companyName, jobName,postDate, jobLocation, clickableLink])
                 connObj.execute('''INSERT INTO Jobs(company_name, job_title, date_posted, location, link)  
                                    VALUES (?,?,?,?,?)''', (companyName, jobName,postDate, jobLocation, clickableLink))

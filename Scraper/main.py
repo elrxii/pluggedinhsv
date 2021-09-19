@@ -25,7 +25,11 @@ with open('jobs.csv', 'w') as csv_file:  # write to csv
     urlArray = (
         ["https://www.indeed.com/jobs?q=software+engineer&l=Huntsville%2C+AL&sort=date&start={}", #hsv
         "https://www.indeed.com/jobs?q=software+enginner&l=Chicago%2C+IL&sort=date&start={}", #chicago
-        "https://www.indeed.com/jobs?q=software+engineer&l=Austin%2C+TX&sort=date&start={}"] #Austin, Tx
+        "https://www.indeed.com/jobs?q=software+engineer&l=Austin%2C+TX&sort=date&start={}", #Austin, Tx
+        "https://www.indeed.com/jobs?q=software+engineer&l=Raleigh%2C+NC&sort=date&start={}", #Raleigh, Tx
+        "https://www.indeed.com/jobs?q=software+engineer&l=Denver%2C+CO&sort=date&start={}", #Raleigh, Tx
+        "https://www.indeed.com/jobs?q=software+engineer&l=Nashville%2C+TN&sort=date&start={}"] #Nashville
+
     )
 
     clickLinkArray =(
@@ -33,6 +37,9 @@ with open('jobs.csv', 'w') as csv_file:  # write to csv
             "https://www.indeed.com/jobs?q=software%20engineer&l=Huntsville%2C%20AL&advn={}&vjk={}", #hsv
             "https://www.indeed.com/jobs?q=software%20engineer&l=Chicago%2C%20IL&advn={}&vjk={}", #chicago
             "https://www.indeed.com/jobs?q=software%20engineer&l=Austin%2C%20TX&advn={}&vjk={}", #austin
+            "https://www.indeed.com/jobs?q=software%20engineer&l=Raleigh%2C%20NC&advn={}&vjk={}", #raleigh
+            "https://www.indeed.com/jobs?q=software%20engineer&l=Denver%2C%20CO&advn={}&vjk={}", #raleigh
+            "https://www.indeed.com/jobs?q=software%20engineer&l=Nashville%2C%20TN&advn={}&vjk={}" #raleigh
         ] 
 )
 
@@ -43,12 +50,11 @@ with open('jobs.csv', 'w') as csv_file:  # write to csv
             src = response.content  # contains the source-code of the website
             soup = BeautifulSoup(src, 'html.parser')
 
-            jobTitle = {"class": "jobtitle"}
-            companyTitle = {"class": "company"}
-            datePosted = {"class": "result-link-bar"}
-            location = {"class": "recJobLoc"}
-            applyLink = {"class": "jobsearch-SerpJobCard"}
-
+            jobTitle = {"class": "jobTitle"}
+            companyTitle = {"class": "companyName"}
+            datePosted = {"class": "date"}
+            location = {"class": "companyLocation"}
+            applyLink = {"class": "tapItem"}
 
             titleArray = soup.find_all(attrs=jobTitle)
             companyArray = soup.find_all(attrs=companyTitle)
@@ -59,21 +65,13 @@ with open('jobs.csv', 'w') as csv_file:  # write to csv
             for i, (a,b,c,d,e) in enumerate(zip(titleArray, companyArray, datePostedArray, locationArray, linkArray)):
                 companyName = b.get_text()
                 jobName = a.get_text()
-                postDate = c.find("span").get_text()
-                jobLocation = d["data-rc-loc"]
+                postDate = c.get_text()
+                jobLocation = d.get_text()
+                redirect_link = 'https://indeed.com'+ e['href']
 
-                if (e.has_attr("data-empn")):
-                    empn = e["data-empn"]
-                    jk = e["data-jk"]
-                elif (e.has_attr("id")):
-                    empn = e["id"]
-                    jk = e["data-jk"]
-                else:
-                    clickableLink = None;
-                clickableLink = clickLinkArray[index].format(empn, jk) # these contain the ids for the to go straight to job link
-                csv_writer.writerow([companyName, jobName,postDate, jobLocation, clickableLink])
+                csv_writer.writerow([companyName, jobName,postDate, jobLocation, redirect_link])
                 connObj.execute('''INSERT INTO Jobs(company_name, job_title, date_posted, location, link)  
-                                   VALUES (?,?,?,?,?)''', (companyName, jobName,postDate, jobLocation, clickableLink))
+                                   VALUES (?,?,?,?,?)''', (companyName, jobName,postDate, jobLocation, redirect_link))
 
 conn.commit()
 conn.close()

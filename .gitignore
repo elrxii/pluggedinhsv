@@ -3,3 +3,4 @@ node_modules
 Scraper/jobs.csv
 Scraper/jobs.db
 Scraper/__pycache*
+.idea*
